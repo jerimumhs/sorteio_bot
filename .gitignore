@@ -1,0 +1,7 @@
+__pycache__/
+.vscode/
+*.py[cod]
+config.json
+users.json
+*.session
+*.session-journal

@@ -1,0 +1,14 @@
+{
+    "user": {
+        "api_id": "1234567",
+        "api_hash": "4p1-h4$h_H3r3",
+        "session_name": "Telethon Session"
+    },
+    "bot": {
+        "token": "your_bot_token_here"
+    },
+    "group" {
+        "name": "Group Name",
+        "restricted": [1234567, 1234567]
+    }
+}
