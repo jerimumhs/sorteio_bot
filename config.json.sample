@@ -7,8 +7,8 @@
     "bot": {
         "token": "your_bot_token_here"
     },
-    "group" {
-        "name": "Group Name",
+    "groups" {
+        "names": ["Group Name", "Other Group Name"],
         "restricted": [1234567, 1234567]
     }
 }

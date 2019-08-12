@@ -14,7 +14,8 @@ def get_random_participant(bot, update):
     '''
     Get a random participant from the user.json file.
     '''
-    with open('users.json') as user_file:
+    chat_title = update.effective_chat.title
+    with open(f'{chat_title}.users.json') as user_file:
         participants_list = json.load(user_file)
 
     participant = random.choice(participants_list)
@@ -28,7 +29,7 @@ def bot():
     '''
     Initialize the bot.
     '''
-    get_users_group(data['group']['name'])
+    get_users_group(data['groups']['names'])
 
     bot_updater.dispatcher.add_handler(
         CommandHandler(

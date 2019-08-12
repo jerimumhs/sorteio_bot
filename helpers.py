@@ -5,16 +5,17 @@ from loguru import logger
 from config import user_client, data
 
 
-def get_users_group(group_name):
+def get_users_group(group_list):
     '''
     Get all members from a group and save in a json file.
     '''
-    def _get_groups():
+    def _get_groups(archived=False):
         '''
         Get all dialogs from a client
         '''
         with user_client as client:
-            all_dialogs = client.get_dialogs()
+            all_dialogs = client.get_dialogs(limit=None, archived=archived)
+
         return {dialog.name: dialog for dialog in all_dialogs if dialog.is_group}
 
     def _get_all_members(group):
@@ -37,28 +38,32 @@ def get_users_group(group_name):
             ]
         return all_members
 
-    groups = _get_groups()
-    group = groups[group_name]
-    users = _get_all_members(group.id)
-    logger.info(f'{len(users)} listed users (bots not included)')
-    with open('users.json', 'w') as json_file:
-        json.dump(users, json_file)
+    for group_name in group_list:
+        groups = _get_groups()
+        group = groups.get(group_name)
+        if not group:
+            group = _get_groups(archived=True).get(group_name)
+
+        users = _get_all_members(group.id) or _get_all_members(group_name)
+        logger.info(f'{group_name}: {len(users)} listed users (bots not included)')
+        with open(f'{group_name}.users.json', 'w') as json_file:
+            json.dump(users, json_file)
 
 
 def restricted(func):
     '''
     This decorator allows you to restrict the access of a handler
-    to only the 'user_ids' specified in data['group']['restricted'].
+    to only the 'user_ids' specified in data['groups']['restricted'].
     '''
     @functools.wraps(func)
     def wrapped(bot, update, *args, **kwargs):
         user_id = update.effective_user.id
         chat_title = update.effective_chat.title
-        if user_id not in data['group']['restricted']:
-            logger.warning(f'Unauthorized access denied for {user_id}')
-            return
-        if chat_title and chat_title != data['group']['name']:
+        if chat_title and chat_title not in data['groups']['names']:
             logger.warning(f"Unauthorized use in {chat_title} group.")
+            return
+        if user_id not in data['groups']['restricted']:
+            logger.warning(f'Unauthorized access denied for {user_id}')
             return
         logger.info(f'Authorized user: {user_id}')
         return func(bot, update, *args, **kwargs)
